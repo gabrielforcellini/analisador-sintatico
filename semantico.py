@@ -2,9 +2,9 @@ class AnaliseSemantica:
     def __init__(self):
         self.tabela_simbolos = {}
     
-    # Adiciona um simbolo na tabela de simbolos
+    # Adiciona um simbolo na tabela de simbolos (já verifica se naquele nível há o mesmo simbolo declarado)
     def adicionar_simbolo(self, nome, categoria, tipo, nivel):
-        if (nome and nivel) not in self.tabela_simbolos:
+        if nome not in self.tabela_simbolos or self.tabela_simbolos[nome]['Nivel'] != nivel:
             self.tabela_simbolos[nome] = {'Categoria': categoria, 'Tipo': tipo, 'Nivel': nivel}
         else:
             print(f"Símbolo '{nome}' já existe na tabela de símbolos.")
@@ -12,7 +12,7 @@ class AnaliseSemantica:
     # Busca um simbolo na tabela de simbolos, retornando True quando encontrado
     # e False quando não encontrado.
     def busca_simbolo(self, nome, categoria, tipo, nivel):
-        if (nome and nivel) not in self.tabela_simbolos:
+        if nome in self.tabela_simbolos and self.tabela_simbolos[nome]['Nivel'] == nivel:
             return True
         
         return False
