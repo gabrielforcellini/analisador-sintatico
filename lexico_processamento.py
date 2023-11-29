@@ -183,6 +183,7 @@ def analise_sintatica(tokens):
 
     erro = False
     erroMsg = ''
+    nivel = 0 # Inicia nível como Global, nível Local será 1
 
     # Inicializar a Matriz de Parsing com zeros.
     tabParsing = TabParsing()
@@ -218,7 +219,11 @@ def analise_sintatica(tokens):
         else:
             if X <= 44: #topo da pilha é um terminal
                 if X == a: #deu match
-                    # Colocar aqui as validações
+                    # Colocar aqui as inserções/exclusões na tabela de símbolos
+                    # e validações que devem ocorrer, se quiser fazer uma função
+                    # fora daqui pode ser também.
+                    if a == 16:
+                        analise_semantica.adicionar_simbolo('pa', 'ident', 'inteiro', nivel)
                     pilha = np.delete(pilha,[0])
                     tokens = np.delete(tokens,[0])
                     X = pilha[0]
@@ -239,10 +244,10 @@ def analise_sintatica(tokens):
                     erro = True
                     erroMsg = 'Error, no production'
                     break
-
     if erro:
         print(erroMsg)
     else:
+        analise_semantica.visualizar_tabela()
         print('Pilha: ')                
         print(pilha)
         print('Entrada: ')

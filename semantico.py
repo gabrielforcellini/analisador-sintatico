@@ -3,7 +3,7 @@ class AnaliseSemantica:
         self.tabela_simbolos = {}
     
     def adicionar_simbolo(self, nome, categoria, tipo, nivel):
-        if nome not in self.tabela_simbolos:
+        if (nome and nivel) not in self.tabela_simbolos:
             self.tabela_simbolos[nome] = {'Categoria': categoria, 'Tipo': tipo, 'Nivel': nivel}
         else:
             print(f"Símbolo '{nome}' já existe na tabela de símbolos.")
@@ -18,9 +18,10 @@ class AnaliseSemantica:
     def visualizar_tabela(self):
         print("Tabela de Símbolos:")
         for nome, info in self.tabela_simbolos.items():
-            print(f"Nome: {nome}, Categoria: {info['Categoria']}, Tipo: {info['Tipo']}, Nível: {info['Nivel']}")
+            print(f"[{nome} | {info['Categoria']} | {info['Tipo']} | {info['Nivel']}]")
     
     # Definir aqui as funções para validar as regras semanticas separadamente
     # Exemplo: def ident_nao_declarado...
+
 
     
