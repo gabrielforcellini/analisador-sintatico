@@ -30,6 +30,16 @@ class AnaliseSemantica:
         print("Tabela de Símbolos:")
         for nome, info in self.tabela_simbolos.items():
             print(f"[{nome} | {info['Categoria']} | {info['Tipo']} | {info['Nivel']}]")
+
+    # Remove todos os simbolos de um mesmo nivel - Será utilizado para fazer remoção dos simbolos de uma
+    # procedure por exemplo.
+    # O código usa uma compreensão de lista para criar uma lista de todos os símbolos que têm o mesmo nível e,
+    # em seguida, itera sobre essa lista para removê-los da tabela. 
+    def remove_simbolos_nivel(self, nivel):
+        simbolos_a_remover = [nome for nome, info in self.tabela_simbolos.items() if info['Nivel'] == nivel]
+        for nome in simbolos_a_remover:
+            del self.tabela_simbolos[nome]
+        print(f"Removidos todos os símbolos do nível {nivel}.")
     
     # Definir aqui as funções para validar as regras semanticas separadamente
     # Exemplo: def ident_nao_declarado...
