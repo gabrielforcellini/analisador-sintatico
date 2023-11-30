@@ -3,11 +3,11 @@
   o analisador léxico
   Erros léxicos propositais foram deixados para testar as validações
 */
-program testprocedure;
+program testproc;
 var num:integer;
 procedure imprimemensagem(segundoInt: integer);
 begin
 end;
 begin
 
-end
+end.

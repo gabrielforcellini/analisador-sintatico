@@ -25,13 +25,13 @@ class AnaliseSemantica:
         else:
             print(f"Símbolo '{nome}' não encontrado na tabela de símbolos.")
 
-    # Imprime a tabela - Apenas para desenvolvimento
+    # Imprime a tabela
     def visualizar_tabela(self):
         print("Tabela de Símbolos:")
         for nome, info in self.tabela_simbolos.items():
             print(f"[{nome} | {info['Categoria']} | {info['Tipo']} | {info['Nivel']}]")
 
-    # Remove todos os simbolos de um mesmo nivel - Será utilizado para fazer remoção dos simbolos de uma
+    # Remove todos os simbolos de um mesmo nivel - Será utilizado para fazer remoção dos simbolos de nível local após sair de uma
     # procedure por exemplo.
     # O código usa uma compreensão de lista para criar uma lista de todos os símbolos que têm o mesmo nível e,
     # em seguida, itera sobre essa lista para removê-los da tabela. 

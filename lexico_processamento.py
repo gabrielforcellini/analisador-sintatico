@@ -68,6 +68,8 @@ def processar_arquivo(arquivo):
     lexemas = []
     linha_atual = []
     in_comment = False
+    token_ident = {} # Será utilizado para associar o token ao seu nome
+    cont = 0 # Será utilizado para contar os identificadores
 
     for linha_numero, linha in enumerate(arquivo, start=1):
         lexema = ''
@@ -95,9 +97,11 @@ def processar_arquivo(arquivo):
 
             if linha[i] in lexemas_filtrados: 
                 if lexema.strip() != '':
+                    cont += 1 # Incrementa 1 no contador de idents
                     # Identificador
                     validar_identificador(linha_numero, lexema)
                     token = lexemas_array.index('ident') + 1
+                    token_ident[cont] = lexema
                     adicionar_token_e_lexema(tokens, lexemas, token, lexema, linha_numero, linha_atual)
                 lexema = linha[i]
             elif linha[i] != ' ' or lexema.startswith("'"):
@@ -164,7 +168,7 @@ def processar_arquivo(arquivo):
     tokens = np.array(tokens)
     
     #tokenchumbado = [8,16,31,21,16,26,12,31,21,16,26,12,31,2,16,33,14,31,9,16,39,16,33,14,38,31,22,10,40,13,41,31,18,31,22,18,35] # Para testar com tokens especificos
-    analise_sintatica(tokens)
+    analise_sintatica(tokens, token_ident)
     return tokens
 
 
@@ -178,12 +182,17 @@ def exibir_tokens_e_lexemas(tokens, lexemas, linha_atual):
         print(f'Token: {token} - Lexema: {lexema} - Linha: {linha}')
     print(tokens) # [array de tokens] Apenas para entendimento, não é necessário para o funcionamento
 
-def analise_sintatica(tokens):
+def analise_sintatica(tokens, tokens_idents):
     print(tokens)
+    print(tokens_idents)
 
     erro = False
     erroMsg = ''
     nivel = 0 # Inicia nível como Global, nível Local será 1
+    varZone = False # Indica quando está na zona de declaração de variáveis para inserir na tabela de símbolos
+    procedureZone = False # Indica quando está na zona de declaração de uma procedure para inserir na tabela de símbolos
+    constZone = False # Indica quando está na zona de declaração de uma const para inserir na tabela de símbolos
+    cont = 1 # Contador de tokens de identificadores
 
     # Inicializar a Matriz de Parsing com zeros.
     tabParsing = TabParsing()
@@ -219,11 +228,46 @@ def analise_sintatica(tokens):
         else:
             if X <= 44: #topo da pilha é um terminal
                 if X == a: #deu match
+
+                    # ---- Parte semântica ----
+                    if a == 2:
+                        varZone = True # Está na zona de inserção das variaveis na tabela de simbolos
+                    
+                    # Se está na zona de variaveis e encontra 'procedure' ou 'begin' então acabou a zona de variável
+                    if varZone and ((a == 22) or (a == 9)):
+                        varZone = False
+                    
+                    if a == 9:
+                       procedureZone = True # Está inserindo uma procedure
+                       nivel = 1 # Quando chega na procedure muda para o nível 1 (Local)
+
+                    # Se está inserindo uma procedure e encontra o token '(' deve sair desse estado
+                    if procedureZone and a == 39:
+                        procedureZone = False
+
+                    # Está inserindo uma constante
+                    if a == 21:
+                        constZone = True
+
+                    # Se está inserindo uma constante e encontra o token ';' deve sair desse estado
+                    if constZone and a == 31:
+                        constZone = False                    
+                    
                     # Colocar aqui as inserções/exclusões na tabela de símbolos
                     # e validações que devem ocorrer, se quiser fazer uma função
-                    # fora daqui pode ser também.
-                    if a == 16:
-                        analise_semantica.adicionar_simbolo('pa', 'ident', 'inteiro', nivel)
+                    # fora daqui pode ser também. Exemplo:
+                    if varZone and a == 16:
+                        nome_ident = tokens_idents[cont] # Acessa o dicionário no index onde está o ident
+                        if constZone:
+                            categoria = 'constante'
+                        elif procedureZone:
+                            categoria = 'procedure'
+                        elif varZone:
+                            categoria = 'variavel'
+                            
+                        analise_semantica.adicionar_simbolo(nome_ident, categoria, '', nivel)
+                        cont += 1
+
                     pilha = np.delete(pilha,[0])
                     tokens = np.delete(tokens,[0])
                     X = pilha[0]
