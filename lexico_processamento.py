@@ -3,6 +3,45 @@ from lexico_utils import *
 from parsing import TabParsing
 from semantico import AnaliseSemantica
 
+def verificar_regras_semanticas(tokens, tabela_simbolos):
+    variaveis_funcao = set()
+    funcao_atual = None
+
+    for i in range(len(tokens)):
+        token = tokens[i]
+
+        # Detecta a declaração da função
+        if token == 'procedure':
+            funcao_atual = tokens[i + 1]
+
+        # Verifica se a função atual foi chamada
+        if funcao_atual and token == funcao_atual:
+            parametros_esperados = tabela_simbolos[funcao_atual]['params']
+            argumentos_chamada = tokens[i + 1:i + 1 + len(parametros_esperados)]
+
+            for idx, arg in enumerate(argumentos_chamada):
+                tipo_esperado = parametros_esperados[idx]['type']
+                if tabela_simbolos[arg]['type'] != tipo_esperado:
+                    print(f"Erro semântico: Tipo incorreto para o argumento {idx + 1} da função '{funcao_atual}'. Esperado: {tipo_esperado}, Recebido: {tabela_simbolos[arg]['type']}.")
+                    return False
+                
+    for i in range(len(tokens) - 1):
+        token = tokens[i]
+        if token in tabela_simbolos:
+            tipo = tabela_simbolos[token]['type']
+
+            if tipo == 'constante' and tokens[i + 1] == ':=':
+                print(f"Erro semântico: Tentativa de modificar uma constante na linha {i + 1}.")
+                return False
+
+            if tipo == 'string' and tokens[i + 1] in {'+', '-', '*', '/'}:
+                print(f"Erro semântico: Uso de string em operação matemática não é permitido na linha {i + 1}.")
+                return False
+
+            # Adapte para incluir outras regras semânticas conforme necessário...
+    return True
+
+
 def le_arquivo(caminho):
     # Lê o arquivo e garante que será fechado automaticamente
     with open(caminho, "r") as arquivo:
